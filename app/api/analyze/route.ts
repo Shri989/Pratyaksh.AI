@@ -3,6 +3,10 @@ import { updateProgress } from "../progress/[analysisId]/route"
 import { analyzeFile, getFallbackAnalysis } from "@/lib/ai-analysis"
 import { getFile } from "@/lib/file-storage"
 
+// Route segment configuration for AI analysis
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 // In-memory storage for analysis results (in production, use database)
 const analysisResults = new Map()
 
