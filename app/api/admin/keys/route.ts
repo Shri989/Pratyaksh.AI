@@ -1,30 +1,35 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { loadKeysFromStorage, saveKeysToStorage, getWorkingKeysCount } from "@/lib/key-storage"
 
-// Load keys from persistent storage on startup
-let storedGeminiKeys = loadKeysFromStorage()
+type StoredKeys = ReturnType<typeof loadKeysFromStorage>
 
-export function getStoredGeminiKeys() {
+// Lazy load keys only when needed (not during build time)
+let storedGeminiKeys: StoredKeys | null = null
+
+export function getStoredGeminiKeys(): StoredKeys {
+  if (!storedGeminiKeys) {
+    storedGeminiKeys = loadKeysFromStorage()
+  }
   return storedGeminiKeys
 }
 
 export async function GET() {
   try {
-    storedGeminiKeys = loadKeysFromStorage()
+    const keys = getStoredGeminiKeys()
 
     const maskKey = (key: string) => (key ? `${key.slice(0, 8)}${"*".repeat(Math.max(0, key.length - 8))}` : "")
 
     const maskedKeys: Record<string, string> = {}
-    Object.entries(storedGeminiKeys).forEach(([keyId, keyValue]) => {
+    Object.entries(keys).forEach(([keyId, keyValue]) => {
       maskedKeys[keyId] = maskKey(keyValue)
     })
 
-    const workingKeysCount = getWorkingKeysCount(storedGeminiKeys)
-    console.log(`[v0] Admin panel loaded ${Object.keys(storedGeminiKeys).length} keys, ${workingKeysCount} have values`)
+    const workingKeysCount = getWorkingKeysCount(keys)
+    console.log(`[v0] Admin panel loaded ${Object.keys(keys).length} keys, ${workingKeysCount} have values`)
 
     return NextResponse.json({
       keys: maskedKeys,
-      totalKeys: Object.keys(storedGeminiKeys).length,
+      totalKeys: Object.keys(keys).length,
       workingKeys: workingKeysCount,
     })
   } catch (error) {
@@ -36,10 +41,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const { keys } = await request.json()
+    const currentKeys = getStoredGeminiKeys()
+
+    // Create a copy to avoid mutations
+    const updatedKeys = { ...currentKeys }
 
     Object.entries(keys).forEach(([keyId, keyValue]) => {
       if (typeof keyValue === "string") {
-        storedGeminiKeys[keyId] = keyValue
+        updatedKeys[keyId] = keyValue
         console.log(`[v0] Updated Gemini API key ${keyId}`)
 
         // Update environment variable for the first key for backward compatibility
@@ -49,14 +58,16 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    saveKeysToStorage(storedGeminiKeys)
+    saveKeysToStorage(updatedKeys)
+    // Update the cached keys
+    storedGeminiKeys = updatedKeys
 
-    const workingKeysCount = getWorkingKeysCount(storedGeminiKeys)
-    console.log(`[v0] Saved ${Object.keys(storedGeminiKeys).length} keys to storage, ${workingKeysCount} have values`)
+    const workingKeysCount = getWorkingKeysCount(updatedKeys)
+    console.log(`[v0] Saved ${Object.keys(updatedKeys).length} keys to storage, ${workingKeysCount} have values`)
 
     return NextResponse.json({
       success: true,
-      totalKeys: Object.keys(storedGeminiKeys).length,
+      totalKeys: Object.keys(updatedKeys).length,
       workingKeys: workingKeysCount,
     })
   } catch (error) {
