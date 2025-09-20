@@ -1,0 +1,23 @@
+{
+  "required": [
+    {
+      "name": "GEMINI_API_KEY",
+      "description": "Primary Gemini AI API key for deepfake detection analysis. Get one from Google AI Studio.",
+      "link": "https://makersuite.google.com/app/apikey"
+    }
+  ],
+  "optional": [
+    {
+      "name": "GEMINI_API_KEY_1",
+      "description": "First backup Gemini AI API key for better rate limiting and failover support"
+    },
+    {
+      "name": "GEMINI_API_KEY_2", 
+      "description": "Second backup Gemini AI API key for enhanced reliability"
+    },
+    {
+      "name": "GEMINI_API_KEY_3",
+      "description": "Third backup Gemini AI API key for maximum uptime"
+    }
+  ]
+}
