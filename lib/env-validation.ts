@@ -1,6 +1,12 @@
 /**
  * Environment Variable Validation for PRATYAKSH AI
- * Ensures required API keys are available at runtime
+ * Ensures required API ke// Auto-validate on import in production (but not during build)
+if (typeof window === 'undefined' && 
+    (process.env.NODE_ENV === 'production' || process.env.VERCEL) && 
+    process.env.NEXT_PHASE !== 'phase-production-build') {
+  // Server-side validation in production runtime only
+  setTimeout(() => logEnvironmentStatus(), 0)
+}e available at runtime
  */
 
 export interface EnvValidationResult {
