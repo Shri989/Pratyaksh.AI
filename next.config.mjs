@@ -8,14 +8,6 @@ const nextConfig = {
   // Vercel-specific configurations
   output: 'standalone',
   
-  // API configurations for large file uploads
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
-    responseLimit: '50mb',
-  },
-  
   async headers() {
     return [
       {
