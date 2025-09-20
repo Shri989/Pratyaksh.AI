@@ -3,24 +3,6 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "regions": ["iad1"],
-  "env": [
-    {
-      "key": "GEMINI_API_KEY",
-      "description": "Primary Gemini AI API key for deepfake detection analysis"
-    },
-    {
-      "key": "GEMINI_API_KEY_1",
-      "description": "First backup Gemini AI API key (optional but recommended for rate limiting)"
-    },
-    {
-      "key": "GEMINI_API_KEY_2", 
-      "description": "Second backup Gemini AI API key (optional)"
-    },
-    {
-      "key": "GEMINI_API_KEY_3",
-      "description": "Third backup Gemini AI API key (optional)"
-    }
-  ],
   "functions": {
     "app/api/upload/route.ts": {
       "maxDuration": 30
