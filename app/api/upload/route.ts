@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { storeFile } from "@/lib/file-storage"
 
+// Route segment configuration for large file uploads
+export const runtime = 'nodejs'
+export const maxDuration = 30
+
 const ACCEPTED_TYPES = [
   "image/jpeg",
   "image/png",
