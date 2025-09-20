@@ -10,12 +10,16 @@ interface StoredKeys {
 
 export function loadKeysFromStorage(): StoredKeys {
   const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
 
-  // Validate environment first
-  const validation = validateEnvironment()
-  if (!validation.isValid && isProduction) {
-    console.error("❌ Critical: Missing required API keys for production deployment")
-    throw new Error(`Missing required environment variables: ${validation.missingVars.join(', ')}`)
+  // Skip validation during build time
+  if (!isBuildTime) {
+    // Validate environment first (only at runtime)
+    const validation = validateEnvironment()
+    if (!validation.isValid && isProduction) {
+      console.error("❌ Critical: Missing required API keys for production deployment")
+      throw new Error(`Missing required environment variables: ${validation.missingVars.join(', ')}`)
+    }
   }
 
   if (isProduction) {
